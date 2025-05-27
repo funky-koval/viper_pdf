@@ -1,0 +1,24 @@
+<form method="post" action="{% url 'run-module-project' project=project sha256=malware.sha256 %}">
+  {% csrf_token %}
+  <input type="hidden" name="module" value="pdfanalysis">
+  
+  <div class="form-group">
+    <label for="args">Select PDF Analysis Action:</label>
+    <select name="args" class="form-control">
+      <option value="info">Run pdfid.py (basic scan)</option>
+      <option value="all">Run pdf-parser.py with -a</option>
+      <option value="object">Show object by ID (-o)</option>
+      <option value="dump">Dump object by ID (-o + -d)</option>
+      <option value="search">Search for keyword in streams (-s)</option>
+      <option value="key">Search for key in dictionaries (-k)</option>
+      <option value="references">Show objects referencing ID (-r)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="cmdline">Optional Command:</label>
+    <input type="text" class="form-control" name="cmdline" placeholder="Example: pdf-parser.py -o 6 -d object6.jpg">
+  </div>
+
+  <button type="submit" class="btn btn-primary">Run PDF Analysis</button>
+</form>
