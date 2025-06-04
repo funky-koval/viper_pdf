@@ -1,0 +1,27 @@
+$('#pdfanalysissubmit').submit(function (event) {
+    event.preventDefault();
+    $.ajax({
+        url: "{% url 'run-module-project' project=project sha256=malware.sha256 %}",
+        type: 'post',
+        dataType: 'html',
+        data: $('#pdfanalysissubmit').serialize(),
+        beforeSend: function () {
+            var target = document.getElementById('spin_loader');
+            var spinner = new Spinner(opts).spin(target);
+            $(target).data('spinner', spinner);
+        },
+        complete: function () {
+            $('#spin_loader').data('spinner').stop();
+        },
+        success: function (response, textStatus, jqXHR) {
+            $('#pdfresponse').prepend(response);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('error(s):' + textStatus, errorThrown);
+        }
+    });
+});
+
+function clear_pdf_div() {
+    document.getElementById("pdfresponse").innerHTML = "";
+}
