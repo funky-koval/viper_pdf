@@ -1,31 +1,29 @@
-<!-- PDF Analysis Form -->
-<div id="pdfanalysis-form">
-  <form method="post" action="{% url 'run-module-project' project=project sha256=malware.sha256 %}" id="pdfanalysis-run-form">
-    {% csrf_token %}
-    <input type="hidden" name="module" value="pdfanalysis">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const pdfForm = document.querySelector('form[action*="run-module"]');
+    if (!pdfForm) return;
 
-    <div class="form-group">
-      <label for="args">Select PDF Analysis Action:</label>
-      <select name="args" class="form-control">
-        <option value="id">Run pdfid.py (basic scan)</option>
-        <option value="id-n">Run pdfid.py with -n</option>
-        <option value="parser">Run pdf-parser.py</option>
-        <option value="parser-a">Run pdf-parser.py -a</option>
-        <option value="parser-o6">Run pdf-parser.py -o 6</option>
-        <option value="parser-r6">Run pdf-parser.py -r 6</option>
-        <option value="custom">Run pdf-parser.py (custom args below)</option>
-      </select>
-    </div>
+    pdfForm.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    <div class="form-group">
-      <label for="cmdline">Optional Command (only used with 'custom'):</label>
-      <input type="text" class="form-control" name="cmdline" placeholder="e.g., -O -a">
-    </div>
+        const formData = new FormData(pdfForm);
+        const url = pdfForm.action;
 
-    <button type="submit" class="btn btn-primary">Run PDF Analysis</button>
-    <button type="button" class="btn btn-secondary" id="pdfanalysis-clear">Clear</button>
-  </form>
-
-  <hr>
-  <div id="pdfanalysis-output" class="mt-3" style="white-space: pre-wrap;"></div>
-</div>
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+            },
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("ajaxresponse").innerHTML = data;
+        })
+        .catch(error => {
+            document.getElementById("ajaxresponse").innerHTML = `<p class="text-danger">Error: ${error}</p>`;
+        });
+    });
+});
+</script>
