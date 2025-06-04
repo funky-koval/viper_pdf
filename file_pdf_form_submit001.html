@@ -1,29 +1,24 @@
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const pdfForm = document.querySelector('form[action*="run-module"]');
-    if (!pdfForm) return;
-
-    pdfForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const formData = new FormData(pdfForm);
-        const url = pdfForm.action;
-
-        fetch(url, {
-            method: "POST",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
-            },
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("ajaxresponse").innerHTML = data;
-        })
-        .catch(error => {
-            document.getElementById("ajaxresponse").innerHTML = `<p class="text-danger">Error: ${error}</p>`;
-        });
+// PDF Analysis tab
+$('#pdfanalysis-form').submit(function (event) {
+    event.preventDefault();  // Prevent full page reload
+    $.ajax({
+        url: "{% url 'run-module' project=project %}",
+        type: 'post',
+        dataType: 'html',
+        data: $('#pdfanalysis-form').serialize(),
+        beforeSend: function () {
+            var target = document.getElementById('spin_loader');
+            var spinner = new Spinner(opts).spin(target);
+            $(target).data('spinner', spinner);
+        },
+        complete: function () {
+            $('#spin_loader').data('spinner').stop();
+        },
+        success: function (response, textStatus, jqXHR) {
+            $('#ajaxresponse').prepend(response);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('PDF Analysis error:', textStatus, errorThrown);
+        }
     });
 });
-</script>
