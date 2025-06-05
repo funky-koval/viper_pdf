@@ -1,0 +1,41 @@
+$('#pdfanalysissubmit').submit(function (event) {
+    event.preventDefault();
+
+    const dropdownArg = $('select[name="args"]').val();
+    const customCmd = $('input[name="cmdline"]').val().trim();
+
+    console.log("Selected dropdownArg:", dropdownArg);
+    console.log("Entered customCmd:", customCmd);
+
+    let cmd = "pdfanalysis";
+
+    if (dropdownArg === "custom" && customCmd !== "") {
+        console.log("Running in CUSTOM mode");
+        cmd += ` --custom "${customCmd}"`;
+    } else if (dropdownArg && dropdownArg !== "none") {
+        console.log("Running predefined option:", dropdownArg);
+        cmd += ` --${dropdownArg}`;
+    } else {
+        console.log("Nothing selected");
+    }
+
+    console.log("Final command:", cmd);
+
+    $.ajax({
+        url: "{% url 'run-module' project=project %}",
+        type: 'post',
+        dataType: 'html',
+        data: {
+            module: 'pdfanalysis',
+            file_hash: "{{ malware.sha256 }}",
+            cmdline: cmd,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (data) {
+            $('#pdfresponse').prepend(data);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('AJAX error:', textStatus, errorThrown);
+        }
+    });
+});
