@@ -1,0 +1,45 @@
+$('#pdfanalysissubmit').submit(function (event) {
+    event.preventDefault();
+
+    const selectedArg = $('select[name="args"]').val();
+    const customCmd = $('input[name="cmdline"]').val().trim();
+
+    console.log("🎯 selectedArg:", selectedArg);
+    console.log("🧠 customCmd:", customCmd);
+
+    let cmd = 'pdfanalysis';
+
+    if (selectedArg === 'custom' && customCmd) {
+        cmd += ' --custom "' + customCmd + '"';
+    } else if (selectedArg && selectedArg !== 'none') {
+        cmd += ' --' + selectedArg;
+    }
+
+    console.log("📤 Final CMD:", cmd);
+
+    $.ajax({
+        url: "{% url 'run-module' project=project %}",
+        type: 'post',
+        dataType: 'html',
+        data: {
+            module: 'pdfanalysis',
+            file_hash: "{{ malware.sha256 }}",
+            cmdline: cmd,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        beforeSend: function () {
+            var target = document.getElementById('spin_loader');
+            var spinner = new Spinner(opts).spin(target);
+            $(target).data('spinner', spinner);
+        },
+        complete: function () {
+            $('#spin_loader').data('spinner').stop();
+        },
+        success: function (response, textStatus, jqXHR) {
+            $('#pdfresponse').prepend(response);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('error(s):' + textStatus, errorThrown);
+        }
+    });
+});
