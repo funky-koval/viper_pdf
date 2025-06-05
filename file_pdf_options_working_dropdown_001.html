@@ -1,0 +1,43 @@
+<!-- PDF Analysis -->
+<div class="tab-pane" id="nav-pdf" role="tabpanel" aria-labelledby="nav-pdf-analysis-tab">
+  <form id="pdfanalysissubmit" method="post" action="{% url 'run-module' project=project %}">
+    {% csrf_token %}
+    <input type="hidden" name="module" value="pdfanalysis">
+    <input type="hidden" name="file_hash" value="{{ malware.sha256 }}">
+    <input type="hidden" name="project" value="{{ project }}">
+
+    <div class="form-group">
+      <label for="args">Select PDF Analysis Action:</label>
+      <select name="args" class="form-control">
+        <option value="id">Run pdfid.py (basic scan)</option>
+        <option value="id-nozero">Run pdfid.py -n (suppress zero counts)</option>
+        <option value="parser-all">Run pdf-parser.py with -a</option>
+        <option value="parser-object-6">Show object with ID 6</option>
+        <option value="parser-object-6-save">Dump object 6 to file</option>
+        <option value="parser-search-uri">Search streams for /URI</option>
+        <option value="parser-keyword-uri">Search dictionaries for /URI</option>
+        <option value="parser-raw-object-6">Show raw content of object 6</option>
+        <option value="custom">Manual (Optional Command will be used)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="cmdline">Specify custom switch for pdf-parser.py:</label>
+      <input type="text" class="form-control" name="cmdline" placeholder="Example: -a or -o 6">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Run PDF Analysis</button>
+  </form>
+
+  <div class="card my-2">
+    <div class="card-header">
+      <h3 class="float-left">PDF Module Output</h3>
+      <div class="float-right">
+        <button class="btn btn-default btn-xs btn-danger" onclick="clear_pdf_div()">Clear</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="pdfresponse"></div>
+    </div>
+  </div>
+</div>
